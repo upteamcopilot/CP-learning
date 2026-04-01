@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CP Roadmap Organizer v2</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#131a32;
+      --panel-2:#1a2242;
+      --text:#e8ecff;
+      --muted:#9ca8d4;
+      --line:#2a3568;
+      --accent:#6ea8fe;
+      --accent2:#9f8bff;
+      --ok:#38d996;
+      --warn:#f5c451;
+      --bad:#ff6b6b;
+      --chip:#222c56;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:radial-gradient(1200px 700px at 70% -20%, #1a2555 0%, #0b1020 55%);
+      color:var(--text);
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+    .app{
+      display:grid;
+      grid-template-columns: 290px 1fr;
+      min-height:100vh;
+    }
+    .side{
+      border-right:1px solid var(--line);
+      padding:16px;
+      background:linear-gradient(180deg,#101734,#0b1020);
+      position:sticky; top:0; height:100vh; overflow:auto;
+    }
+    .brand{font-size:19px;font-weight:800;margin-bottom:4px}
+    .tag{font-size:12px;color:var(--muted);margin-bottom:16px}
+    .card{
+      border:1px solid var(--line);
+      background:var(--panel);
+      border-radius:12px;
+      padding:12px;
+      margin-bottom:10px;
+    }
+    .card h4{margin:0 0 8px 0;font-size:14px}
+    .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    .progress{
+      height:8px;border-radius:999px;background:#222c58;overflow:hidden;margin-top:8px
+    }
+    .bar{
+      height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2))
+    }
+    .btn, .file-label{
+      width:100%;margin-top:8px;
+      border:1px solid var(--line);
+      background:var(--panel-2);
+      color:var(--text);
+      border-radius:10px;
+      padding:9px 10px;
+      cursor:pointer;
+      font-size:13px;
+      text-align:center;
+      display:block;
+    }
+    .btn:hover,.file-label:hover{filter:brightness(1.08)}
+    .main{padding:16px 18px 22px}
+    .top-grid{
+      display:grid;
+      grid-template-columns: repeat(5,minmax(140px,1fr));
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .kpi{
+      border:1px solid var(--line);
+      background:var(--panel);
+      border-radius:12px;
+      padding:12px;
+    }
+    .kpi .label{color:var(--muted);font-size:12px}
+    .kpi .value{font-size:24px;font-weight:800;line-height:1.1;margin-top:6px}
+    .toolbar{
+      display:grid;
+      grid-template-columns: 1.3fr repeat(4,minmax(120px,1fr));
+      gap:8px;
+      margin-bottom:12px;
+    }
+    .toolbar input,.toolbar select{
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--text);
+      border-radius:10px;
+      padding:9px 10px;
+      width:100%;
+    }
+    .section{
+      border:1px solid var(--line);
+      background:var(--panel);
+      border-radius:12px;
+      padding:12px;
+      margin-bottom:12px;
+    }
+    .section h3{margin:0 0 10px 0;font-size:15px}
+    .chips{display:flex;flex-wrap:wrap;gap:7px}
+    .pill{
+      background:var(--chip);
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;color:var(--muted);
+    }
+
+    .planner{
+      display:grid;grid-template-columns: 190px 1fr auto;gap:8px
+    }
+    .planner input,.planner textarea{
+      border:1px solid var(--line); background:var(--panel-2); color:var(--text);
+      border-radius:10px; padding:9px;
+      width:100%;
+    }
+    .planner textarea{min-height:64px; resize:vertical}
+    .table-wrap{overflow:auto}
+    table{
+      width:100%; border-collapse:collapse; font-size:13px;
+    }
+    th,td{
+      border:1px solid var(--line);
+      padding:8px; vertical-align:top;
+    }
+    th{
+      background:#242f61;
+      text-align:left;
+      position:sticky; top:0;
+    }
+    tr:nth-child(even){background:rgba(255,255,255,0.02)}
+    .chip{
+      display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;
+      border:1px solid var(--line);background:var(--chip)
+    }
+    .p1{background:#1f4739;border-color:#2e6c55;color:#bcffe2}
+    .p2{background:#4a3e22;border-color:#7f6934;color:#ffe8b4}
+    .p3{background:#4a252a;border-color:#7f3e46;color:#ffd4d9}
+    .status{
+      border:1px solid var(--line);
+      background:var(--panel-2);
+      color:var(--text);
+      border-radius:8px;
+      padding:5px;
+      width:100%;
+      font-size:12px;
+    }
+    textarea.note{
+      width:100%; min-height:40px; resize:vertical;
+      border:1px solid var(--line); background:#0f1530; color:var(--text);
+      border-radius:8px; padding:6px; font-size:12px;
+    }
+    details.topic{
+      border:1px solid var(--line);
+      background:var(--panel);
+      border-radius:12px;
+      overflow:hidden;
+      margin-bottom:10px;
+    }
+    details.topic summary{
+      cursor:pointer; list-style:none; user-select:none;
+      padding:12px; display:flex; justify-content:space-between; align-items:center;
+      background:rgba(255,255,255,0.01);
+    }
+    details.topic summary::-webkit-details-marker{display:none}
+    .resource{
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:var(--panel-2);
+      padding:9px; margin:10px;
+      font-size:12px; color:var(--muted);
+    }
+    .resource a{color:var(--accent)}
+    .topic-body{padding:0 10px 10px}
+    .list{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+    .list-item{
+      border-bottom:1px solid var(--line); padding:8px 10px; font-size:13px;
+      display:flex; justify-content:space-between; gap:8px;
+    }
+    .list-item:last-child{border-bottom:none}
+    .good{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+    @media (max-width:1100px){
+      .app{grid-template-columns:1fr}
+      .side{position:relative;height:auto}
+      .top-grid{grid-template-columns:repeat(2,minmax(140px,1fr))}
+      .toolbar{grid-template-columns:1fr 1fr}
+      .planner{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">CP Roadmap v2</div>
+    <div class="tag">Organize topics, problems, planner, streaks.</div>
+
+    <div class="card">
+      <h4>Overall Progress</h4>
+      <div class="row small"><span class="muted">Solved Rate</span><span id="sideSolvedPct">0%</span></div>
+      <div class="progress"><div class="bar" id="sideBar"></div></div>
+      <div class="row small" style="margin-top:8px"><span class="muted">Weighted Score</span><strong id="sideScore">0</strong></div>
+      <div class="row small"><span class="muted">Current Streak</span><strong id="sideStreak">0 days</strong></div>
+    </div>
+
+    <div class="card">
+      <h4>Smart Next (P1 unsolved)</h4>
+      <div class="list" id="smartList"></div>
+    </div>
+
+    <button class="btn" id="expandAll">Expand all topics</button>
+    <button class="btn" id="collapseAll">Collapse all topics</button>
+    <button class="btn" id="resetAll">Reset progress</button>
+    <button class="btn" id="exportBtn">Export JSON</button>
+    <label class="file-label" for="importFile">Import JSON</label>
+    <input id="importFile" type="file" accept=".json" style="display:none"/>
+
+    <div class="card" style="margin-top:10px">
+      <h4>Note Types (quick)</h4>
+      <div class="small muted">
+        <b>Archetype:</b> pattern name<br/>
+        <b>Observation signal:</b> clue from statement<br/>
+        <b>Greedy proof:</b> why local choice works<br/>
+        <b>Math trigger:</b> parity/gcd/mod clues<br/>
+        <b>Bug log:</b> repeated coding mistakes<br/>
+        <b>Postmortem:</b> contest time analysis
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="top-grid">
+      <div class="kpi"><div class="label">Total Problems</div><div class="value" id="kTotal">0</div></div>
+      <div class="kpi"><div class="label">Solved</div><div class="value good" id="kSolved">0</div></div>
+      <div class="kpi"><div class="label">Review</div><div class="value warn" id="kReview">0</div></div>
+      <div class="kpi"><div class="label">Unsolved</div><div class="value bad" id="kUnsolved">0</div></div>
+      <div class="kpi"><div class="label">Streak</div><div class="value" id="kStreak">0</div></div>
+    </section>
+
+    <section class="section">
+      <h3>Daily Planner</h3>
+      <div class="planner">
+        <input type="date" id="planDate"/>
+        <textarea id="planText" placeholder="Today's plan... (e.g. DP L + TOI 18 P2 + review bug log)"></textarea>
+        <button class="btn" id="savePlan">Save Plan</button>
+      </div>
+      <div class="small muted" style="margin-top:8px">Tip: Save one plan per day. Mark problems as solved to build streak.</div>
+    </section>
+
+    <section class="section">
+      <h3>Today Focus</h3>
+      <div class="chips" id="todayChips"></div>
+    </section>
+
+    <section class="section">
+      <h3>Filters</h3>
+      <div class="toolbar">
+        <input id="search" placeholder="Search topic/problem/algorithm/note..."/>
+        <select id="fSource">
+          <option value="">All Sources</option>
+          <option value="CSES">CSES</option>
+          <option value="AtCoder">AtCoder</option>
+          <option value="TOI">TOI</option>
+          <option value="OTOG">OTOG</option>
+          <option value="Custom">Custom</option>
+        </select>
+        <select id="fPriority">
+          <option value="">All Priority</option>
+          <option value="P1">P1</option>
+          <option value="P2">P2</option>
+          <option value="P3">P3</option>
+        </select>
+        <select id="fStatus">
+          <option value="">All Status</option>
+          <option value="unsolved">unsolved</option>
+          <option value="solved">solved</option>
+          <option value="review">review</option>
+        </select>
+        <select id="fTopic">
+          <option value="">All Topics</option>
+        </select>
+      </div>
+    </section>
+
+    <section id="topics"></section>
+  </main>
+</div>
+
+<script>
+const STORAGE = "cp_roadmap_v2";
+const PLAN_STORAGE = "cp_roadmap_v2_plans";
+
+const seedTopics = [
+  {
+    topic:"Python CP (Apr 19 focus)",
+    learn:["Fast I/O","dict/set/Counter/defaultdict","heapq/bisect/deque","tuple sorting","Python performance pitfalls"],
+    watch:[
+      {title:"GeeksforGeeks - Competitive Programming in Python",url:"https://www.geeksforgeeks.org/videos/competitive-programming-in-python/"},
+      {title:"Search: Python CP fast IO",url:"https://www.youtube.com/results?search_query=python+competitive+programming+fast+io"}
+    ],
+    problems:[
+      ["CSES Palindrome Reorder","CSES","frequency counting / strings","P1"],
+      ["CSES Creating Strings","CSES","permutations / backtracking","P1"],
+      ["CSES Towers","CSES","multiset greedy","P1"],
+      ["CSES Apartments","CSES","sorting + two pointers","P1"],
+      ["CSES Ferris Wheel","CSES","sorting + greedy","P1"],
+      ["CSES Movie Festival","CSES","interval greedy","P1"],
+      ["CSES Factory Machines","CSES","binary search on answer","P1"],
+      ["CSES Playlist","CSES","sliding window distinct","P1"],
+      ["CSES Tasks and Deadlines","CSES","sorting greedy","P1"]
+    ]
+  },
+  {
+    topic:"Math / Number Theory",
+    learn:["gcd/lcm","prime sieve/factorization","mod arithmetic","fast exponentiation","parity","constructive math"],
+    watch:[
+      {title:"Search: CP Number Theory Basics",url:"https://www.youtube.com/results?search_query=competitive+programming+number+theory+basics"},
+      {title:"Search: Modular Arithmetic CP",url:"https://www.youtube.com/results?search_query=modular+arithmetic+competitive+programming"}
+    ],
+    problems:[
+      ["CSES Trailing Zeros","CSES","count factors of 5 in factorial","P1"],
+      ["CSES Coin Piles","CSES","invariant / constructive math","P1"],
+      ["CSES Exponentiation","CSES","binary exponentiation","P1"],
+      ["CSES Exponentiation II","CSES","mod exponentiation + number theory","P1"],
+      ["CSES Counting Divisors","CSES","prime factorization","P1"],
+      ["CSES Common Divisors","CSES","divisor frequency","P1"],
+      ["CSES Divisor Analysis","CSES","divisor formulas","P2"]
+    ]
+  },
+  {
+    topic:"Greedy",
+    learn:["interval scheduling","sorting with custom keys","exchange argument","greedy + multiset"],
+    watch:[
+      {title:"Search: Greedy Proof CP",url:"https://www.youtube.com/results?search_query=greedy+proof+competitive+programming"},
+      {title:"Search: Interval Scheduling Proof",url:"https://www.youtube.com/results?search_query=interval+scheduling+proof+competitive+programming"}
+    ],
+    problems:[
+      ["CSES Movie Festival","CSES","interval scheduling","P1"],
+      ["CSES Movie Festival II","CSES","interval scheduling + multiset","P1"],
+      ["CSES Tasks and Deadlines","CSES","sorting greedy + proof","P1"],
+      ["CSES Missing Coin Sum","CSES","greedy invariant","P1"],
+      ["CSES Towers","CSES","multiset greedy","P1"],
+      ["CSES Room Allocation","CSES","greedy + priority queue","P1"],
+      ["CSES Traffic Lights","CSES","ordered set + segment lengths","P2"]
+    ]
+  },
+  {
+    topic:"Binary Search / Answer Search",
+    learn:["monotonic predicate","ok(mid)","binary search on value space","predecessor search"],
+    watch:[
+      {title:"Search: Codeforces EDU Binary Search",url:"https://www.youtube.com/results?search_query=codeforces+edu+binary+search"}
+    ],
+    problems:[
+      ["CSES Factory Machines","CSES","binary search on answer","P1"],
+      ["CSES Array Division","CSES","binary search + greedy check","P1"],
+      ["CSES Multiplication Table","CSES","binary search counting","P2"],
+      ["CSES Projects","CSES","weighted interval scheduling (DP+bs)","P1"],
+      ["Custom Weighted Interval Scheduling","Custom","sort intervals + predecessor + DP","P1"]
+    ]
+  },
+  {
+    topic:"DP",
+    learn:["1D/2D DP","knapsack","interval DP","game DP","DAG DP","tree DP","bitmask DP"],
+    watch:[
+      {title:"AtCoder DP Task List (official)",url:"https://atcoder.jp/contests/dp/tasks"},
+      {title:"Search: Errichto DP",url:"https://www.youtube.com/results?search_query=Errichto+dynamic+programming"}
+    ],
+    problems:[
+      ["AtCoder DP D - Knapsack 1","AtCoder","0/1 knapsack","P1"],
+      ["AtCoder DP F - LCS","AtCoder","sequence DP","P2"],
+      ["AtCoder DP G - Longest Path","AtCoder","DAG DP","P1"],
+      ["AtCoder DP K - Stones","AtCoder","game DP","P1"],
+      ["AtCoder DP L - Deque","AtCoder","interval/game DP","P1"],
+      ["AtCoder DP N - Slimes","AtCoder","interval merge DP","P1"],
+      ["AtCoder DP O - Matching","AtCoder","bitmask DP","P1"],
+      ["AtCoder DP P - Independent Set","AtCoder","tree DP","P1"],
+      ["AtCoder DP U - Grouping","AtCoder","subset DP","P2"],
+      ["AtCoder DP V - Subtree","AtCoder","rerooting DP","P2"],
+      ["AtCoder DP W - Intervals","AtCoder","advanced interval DP","P2"],
+      ["CSES Book Shop","CSES","knapsack","P1"],
+      ["CSES Array Description","CSES","state DP","P1"],
+      ["CSES Removal Game","CSES","interval/game DP","P1"],
+      ["CSES Projects","CSES","weighted interval scheduling","P1"],
+      ["CSES Elevator Rides","CSES","bitmask DP","P1"]
+    ]
+  },
+  {
+    topic:"Graph",
+    learn:["BFS/DFS modeling","Dijkstra","Bellman-Ford","SCC","condensation DAG","graph DP"],
+    watch:[
+      {title:"Search: WilliamFiset Graph Theory",url:"https://www.youtube.com/results?search_query=WilliamFiset+graph+theory"},
+      {title:"Search: WilliamFiset Dijkstra",url:"https://www.youtube.com/results?search_query=WilliamFiset+Dijkstra"},
+      {title:"Search: SCC Kosaraju CP",url:"https://www.youtube.com/results?search_query=Kosaraju+competitive+programming"}
+    ],
+    problems:[
+      ["CSES Monsters","CSES","multi-source BFS","P1"],
+      ["CSES Course Schedule","CSES","topological sort","P1"],
+      ["CSES Longest Flight Route","CSES","DAG DP","P1"],
+      ["CSES Game Routes","CSES","DAG counting","P1"],
+      ["CSES Shortest Routes I","CSES","Dijkstra","P1"],
+      ["CSES Flight Discount","CSES","shortest path modeling","P1"],
+      ["CSES High Score","CSES","Bellman-Ford / neg cycle reachability","P1"],
+      ["CSES Investigation","CSES","Dijkstra + path stats","P1"],
+      ["CSES Planets and Kingdoms","CSES","SCC","P1"],
+      ["CSES Coin Collector","CSES","SCC condensation + DAG DP","P1"]
+    ]
+  },
+  {
+    topic:"Tree",
+    learn:["diameter","tree distances","tree DP","rerooting","Euler tour","LCA/binary lifting"],
+    watch:[
+      {title:"Search: WilliamFiset Tree Algorithms",url:"https://www.youtube.com/results?search_query=WilliamFiset+tree+algorithms"},
+      {title:"Search: Binary Lifting LCA CP",url:"https://www.youtube.com/results?search_query=binary+lifting+LCA+competitive+programming"}
+    ],
+    problems:[
+      ["CSES Tree Distances I","CSES","diameter-based distances","P1"],
+      ["CSES Tree Distances II","CSES","rerooting DP","P1"],
+      ["CSES Tree Matching","CSES","tree DP","P1"],
+      ["CSES Company Queries II","CSES","LCA / binary lifting","P1"],
+      ["CSES Subtree Queries","CSES","Euler tour + BIT/Segtree","P1"],
+      ["CSES Distinct Colors","CSES","subtree merging / DSU on tree style","P2"]
+    ]
+  },
+  {
+    topic:"Two Pointers / Sliding Window",
+    learn:["two pointers","window invariant","monotonic deque","window median/cost"],
+    watch:[
+      {title:"Search: Two Pointers CP",url:"https://www.youtube.com/results?search_query=two+pointers+competitive+programming"},
+      {title:"Search: Sliding Window CP",url:"https://www.youtube.com/results?search_query=sliding+window+competitive+programming"}
+    ],
+    problems:[
+      ["CSES Playlist","CSES","sliding window distinct","P1"],
+      ["CSES Sum of Three Values","CSES","sorting + two pointers","P1"],
+      ["CSES Sliding Window Minimum","CSES","monotonic deque","P1"],
+      ["CSES Sliding Window Cost","CSES","median maintenance / multisets","P1"],
+      ["CSES Sliding Window Median","CSES","two multisets","P2"]
+    ]
+  },
+  {
+    topic:"Prefix / Compression",
+    learn:["1D/2D prefix sums","difference arrays","coordinate compression","prefix+hashmap"],
+    watch:[
+      {title:"Search: Prefix Sum CP",url:"https://www.youtube.com/results?search_query=prefix+sum+competitive+programming"},
+      {title:"Search: Coordinate Compression CP",url:"https://www.youtube.com/results?search_query=coordinate+compression+competitive+programming"}
+    ],
+    problems:[
+      ["CSES Static Range Sum Queries","CSES","1D prefix sums","P1"],
+      ["CSES Forest Queries","CSES","2D prefix sums","P1"],
+      ["CSES Subarray Sums II","CSES","prefix + hashmap","P1"],
+      ["CSES Subarray Divisibility","CSES","prefix mod counting","P1"],
+      ["CSES Salary Queries","CSES","compression + data structure","P2"]
+    ]
+  },
+  {
+    topic:"TOI Archive / OTOG",
+    learn:["observation skill","subtask strategy","ad-hoc modeling","partial extraction"],
+    watch:[
+      {title:"TOI Archive (official)",url:"https://programming.in.th/archive/toi"},
+      {title:"TOI 20 archive page",url:"https://programming.in.th/archive/toi/20"}
+    ],
+    problems:[
+      ["TOI 12-20 sets","TOI","mixed ad-hoc/DP/graph/greedy","P1"],
+      ["TOI 8-11 sets","TOI","mixed","P2"],
+      ["OTOG hard observe set","OTOG","observation/ad-hoc","P1"]
+    ]
+  }
+];
+
+function initState(topics){
+  return topics.map(t => ({
+    ...t,
+    open:false,
+    problems:t.problems.map(([name,source,alg,priority]) => ({
+      id:crypto.randomUUID(),
+      name,source,alg,priority,
+      status:"unsolved",
+      note:"",
+      solvedAt:""
+    }))
+  }));
+}
+
+function loadState(){
+  const raw = localStorage.getItem(STORAGE);
+  if(!raw){
+    const s = initState(seedTopics);
+    localStorage.setItem(STORAGE, JSON.stringify(s));
+    return s;
+  }
+  try { return JSON.parse(raw); }
+  catch{
+    const s = initState(seedTopics);
+    localStorage.setItem(STORAGE, JSON.stringify(s));
+    return s;
+  }
+}
+function loadPlans(){
+  const raw = localStorage.getItem(PLAN_STORAGE);
+  if(!raw) return {};
+  try{return JSON.parse(raw)}catch{return {}}
+}
+let state = loadState();
+let plans = loadPlans();
+
+const $ = (id)=>document.getElementById(id);
+
+const els = {
+  topics:$("topics"),
+  search:$("search"),
+  fSource:$("fSource"),
+  fPriority:$("fPriority"),
+  fStatus:$("fStatus"),
+  fTopic:$("fTopic"),
+  kTotal:$("kTotal"), kSolved:$("kSolved"), kReview:$("kReview"), kUnsolved:$("kUnsolved"), kStreak:$("kStreak"),
+  sideSolvedPct:$("sideSolvedPct"), sideBar:$("sideBar"), sideScore:$("sideScore"), sideStreak:$("sideStreak"),
+  todayChips:$("todayChips"), smartList:$("smartList"),
+  planDate:$("planDate"), planText:$("planText")
+};
+
+function saveState(){ localStorage.setItem(STORAGE, JSON.stringify(state)); }
+function savePlans(){ localStorage.setItem(PLAN_STORAGE, JSON.stringify(plans)); }
+
+function esc(s=""){
+  return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+}
+function dateStr(d=new Date()){
+  const z=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`;
+}
+function parseDate(s){ return new Date(s+"T00:00:00"); }
+
+function weighted(p){
+  if(p.priority==="P1") return 3;
+  if(p.priority==="P2") return 2;
+  return 1;
+}
+
+function allProblems(){
+  return state.flatMap(t => t.problems.map(p => ({...p, topic:t.topic})));
+}
+function updateKPIs(){
+  const all = allProblems();
+  const total = all.length;
+  const solved = all.filter(p=>p.status==="solved").length;
+  const review = all.filter(p=>p.status==="review").length;
+  const unsolved = all.filter(p=>p.status==="unsolved").length;
+  const pct = total? Math.round(solved*100/total):0;
+  const score = all.filter(p=>p.status==="solved").reduce((a,p)=>a+weighted(p),0);
+
+  els.kTotal.textContent = total;
+  els.kSolved.textContent = solved;
+  els.kReview.textContent = review;
+  els.kUnsolved.textContent = unsolved;
+  els.sideSolvedPct.textContent = pct+"%";
+  els.sideBar.style.width = pct+"%";
+  els.sideScore.textContent = score;
+
+  const streak = computeStreak();
+  els.kStreak.textContent = streak;
+  els.sideStreak.textContent = `${streak} days`;
+}
+
+function computeStreak(){
+  // streak based on solvedAt dates
+  const solvedDates = new Set(
+    allProblems()
+      .filter(p=>p.status==="solved" && p.solvedAt)
+      .map(p=>p.solvedAt)
+  );
+  if(solvedDates.size===0) return 0;
+  let streak = 0;
+  let d = new Date();
+  for(;;){
+    const s = dateStr(d);
+    if(solvedDates.has(s)){
+      streak++;
+      d.setDate(d.getDate()-1);
+    }else{
+      // allow streak to start from yesterday if nothing solved today
+      if(streak===0){
+        d.setDate(d.getDate()-1);
+        const y = dateStr(d);
+        if(solvedDates.has(y)){
+          streak++;
+          d.setDate(d.getDate()-1);
+          while(solvedDates.has(dateStr(d))){
+            streak++;
+            d.setDate(d.getDate()-1);
+          }
+        }
+      }
+      break;
+    }
+  }
+  return streak;
+}
+
+function renderSmart(){
+  const picks = allProblems()
+    .filter(p=>p.status==="unsolved")
+    .sort((a,b)=>{
+      const pa = a.priority==="P1"?0:a.priority==="P2"?1:2;
+      const pb = b.priority==="P1"?0:b.priority==="P2"?1:2;
+      if(pa!==pb) return pa-pb;
+      return a.name.localeCompare(b.name);
+    })
+    .slice(0,10);
+
+  $("smartList").innerHTML = picks.length? picks.map(p=>`
+    <div class="list-item">
+      <div>
+        <div>${esc(p.name)}</div>
+        <div class="small muted">${esc(p.topic)} • ${esc(p.alg)}</div>
+      </div>
+      <span class="chip ${p.priority.toLowerCase()}">${esc(p.priority)}</span>
+    </div>
+  `).join("") : `<div class="list-item muted">All done 🎉</div>`;
+}
+function renderTodayFocus(){
+  const picks = allProblems().filter(p=>p.status==="unsolved" && p.priority==="P1").slice(0,8);
+  els.todayChips.innerHTML = picks.length
+    ? picks.map(p=>`<span class="pill">${esc(p.topic)} • ${esc(p.name)}</span>`).join("")
+    : `<span class="muted small">No unsolved P1 left. Great job.</span>`;
+}
+
+function getFilters(){
+  return {
+    q:els.search.value.trim().toLowerCase(),
+    source:els.fSource.value,
+    priority:els.fPriority.value,
+    status:els.fStatus.value,
+    topic:els.fTopic.value
+  };
+}
+function match(topicName, p, f){
+  const txt = `${topicName} ${p.name} ${p.alg} ${p.source} ${p.priority} ${p.status} ${p.note}`.toLowerCase();
+  if(f.q && !txt.includes(f.q)) return false;
+  if(f.source && p.source!==f.source) return false;
+  if(f.priority && p.priority!==f.priority) return false;
+  if(f.status && p.status!==f.status) return false;
+  if(f.topic && topicName!==f.topic) return false;
+  return true;
+}
+
+function renderTopics(){
+  const f = getFilters();
+  const blocks = [];
+
+  state.forEach(t=>{
+    const visible = t.problems.filter(p=>match(t.topic,p,f));
+    if((f.q||f.source||f.priority||f.status||f.topic) && visible.length===0) return;
+
+    const solvedCount = t.problems.filter(p=>p.status==="solved").length;
+    const rows = visible.map(p=>`
+      <tr>
+        <td>${esc(p.name)}</td>
+        <td><span class="chip">${esc(p.alg)}</span></td>
+        <td>${esc(p.source)}</td>
+        <td><span class="chip ${p.priority.toLowerCase()}">${esc(p.priority)}</span></td>
+        <td>
+          <select class="status" data-id="${p.id}">
+            <option value="unsolved" ${p.status==="unsolved"?"selected":""}>unsolved</option>
+            <option value="solved" ${p.status==="solved"?"selected":""}>solved</option>
+            <option value="review" ${p.status==="review"?"selected":""}>review</option>
+          </select>
+        </td>
+        <td><textarea class="note" data-note="${p.id}" placeholder="signal/bug/proof note...">${esc(p.note)}</textarea></td>
+      </tr>
+    `).join("");
+
+    blocks.push(`
+      <details class="topic" ${t.open?"open":""} data-topic="${esc(t.topic)}">
+        <summary>
+          <div><b>${esc(t.topic)}</b></div>
+          <div class="small muted">${solvedCount}/${t.problems.length} solved</div>
+        </summary>
+        <div class="resource">
+          <div><b>Learn:</b> ${t.learn.map(x=>`<span class="pill">${esc(x)}</span>`).join(" ")}</div>
+          <div style="margin-top:6px"><b>Watch / Read:</b><br/>
+            ${t.watch.map(w=>`<a target="_blank" rel="noopener" href="${w.url}">${esc(w.title)}</a>`).join("<br/>")}
+          </div>
+        </div>
+        <div class="topic-body table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:28%">Problem</th>
+                <th style="width:24%">Algorithm Type</th>
+                <th style="width:8%">Source</th>
+                <th style="width:8%">Priority</th>
+                <th style="width:10%">Status</th>
+                <th style="width:22%">Notes</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </details>
+    `);
+  });
+
+  els.topics.innerHTML = blocks.join("") || `<div class="section muted">No results for current filters.</div>`;
+
+  document.querySelectorAll("details.topic").forEach(d=>{
+    d.addEventListener("toggle",()=>{
+      const topic = d.dataset.topic;
+      const ref = state.find(x=>x.topic===topic);
+      if(ref){ref.open=d.open; saveState();}
+    });
+  });
+
+  document.querySelectorAll("select.status").forEach(sel=>{
+    sel.addEventListener("change", e=>{
+      const id = e.target.dataset.id;
+      const value = e.target.value;
+      updateProblem(id, {status:value, solvedAt:value==="solved"?dateStr():""});
+      refreshAll();
+    });
+  });
+
+  document.querySelectorAll("textarea.note").forEach(tx=>{
+    tx.addEventListener("change", e=>{
+      const id = e.target.dataset.note;
+      updateProblem(id,{note:e.target.value});
+    });
+  });
+}
+function updateProblem(id, patch){
+  for(const t of state){
+    const p = t.problems.find(x=>x.id===id);
+    if(p){ Object.assign(p,patch); saveState(); return; }
+  }
+}
+
+function refreshAll(){
+  updateKPIs();
+  renderSmart();
+  renderTodayFocus();
+  renderTopics();
+}
+
+function populateTopicFilter(){
+  const topics = state.map(t=>t.topic);
+  els.fTopic.innerHTML = `<option value="">All Topics</option>` + topics.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+}
+
+function bind(){
+  [els.search,els.fSource,els.fPriority,els.fStatus,els.fTopic].forEach(x=>{
+    x.addEventListener("input",renderTopics);
+    x.addEventListener("change",renderTopics);
+  });
+
+  $("expandAll").addEventListener("click",()=>{
+    state.forEach(t=>t.open=true); saveState(); renderTopics();
+  });
+  $("collapseAll").addEventListener("click",()=>{
+    state.forEach(t=>t.open=false); saveState(); renderTopics();
+  });
+  $("resetAll").addEventListener("click",()=>{
+    if(!confirm("Reset all status/notes?")) return;
+    state.forEach(t=>t.problems.forEach(p=>{p.status="unsolved"; p.note=""; p.solvedAt="";}));
+    saveState(); refreshAll();
+  });
+
+  $("exportBtn").addEventListener("click",()=>{
+    const payload = {topics:state, plans};
+    const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "cp-roadmap-v2-export.json"; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  $("importFile").addEventListener("change", e=>{
+    const file = e.target.files?.[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        if(data.topics && Array.isArray(data.topics)){
+          state = data.topics;
+          plans = data.plans || {};
+        }else if(Array.isArray(data)){
+          state = data;
+        }else{
+          throw new Error("bad format");
+        }
+        saveState(); savePlans();
+        populateTopicFilter();
+        refreshAll();
+        loadTodayPlan();
+      }catch{
+        alert("Invalid JSON format.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value="";
+  });
+
+  // planner
+  els.planDate.value = dateStr();
+  loadTodayPlan();
+
+  $("savePlan").addEventListener("click",()=>{
+    const d = els.planDate.value || dateStr();
+    plans[d] = els.planText.value.trim();
+    savePlans();
+    alert("Plan saved for " + d);
+  });
+
+  els.planDate.addEventListener("change", loadTodayPlan);
+}
+function loadTodayPlan(){
+  const d = els.planDate.value || dateStr();
+  els.planText.value = plans[d] || "";
+}
+
+populateTopicFilter();
+bind();
+refreshAll();
+</script>
+</body>
+</html>
